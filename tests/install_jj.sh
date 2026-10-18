@@ -25,7 +25,7 @@ if [[ -z "$want" || ("$want" != latest && -z "$pin") ]]; then
 fi
 
 if [[ "$want" == latest ]]; then
-  meta="$(curl -fsSL --retry 3 https://api.github.com/repos/jj-vcs/jj/releases/latest)"
+  meta="$(curl -fsSL --proto '=https' --retry 3 https://api.github.com/repos/jj-vcs/jj/releases/latest)"
   tag="$(jq -r '.tag_name // empty' <<<"$meta")"
   [[ -n "$tag" ]] || {
     echo "error: could not resolve the latest jj release" >&2
@@ -48,7 +48,7 @@ dest="${JJ_INSTALL_DIR:-$HOME/.local/bin}"
 tmpd="$(mktemp -d)"
 trap 'rm -rf "$tmpd"' EXIT
 
-curl -fsSL --retry 3 -o "$tmpd/$asset" "https://github.com/jj-vcs/jj/releases/download/${tag}/${asset}"
+curl -fsSL --proto '=https' --retry 3 -o "$tmpd/$asset" "https://github.com/jj-vcs/jj/releases/download/${tag}/${asset}"
 echo "${sha}  $tmpd/$asset" | sha256sum -c -
 tar -xzf "$tmpd/$asset" -C "$tmpd"
 bin="$(find "$tmpd" -name jj -type f -print -quit)"
