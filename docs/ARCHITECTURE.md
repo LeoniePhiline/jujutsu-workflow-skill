@@ -42,10 +42,14 @@ Tested, shellcheck-clean helpers the skill invokes via `${CLAUDE_SKILL_DIR}`:
 
 - **[smoke_test.sh](../tests/smoke_test.sh)** — end-to-end proof that the documented workflow works in a real colocated repo + remote.
 - **[superiority_evals.sh](../tests/superiority_evals.sh)** — paired jj-vs-git scenarios that demonstrate jj's concrete advantages.
-- **[verify_jj_version.sh](../tests/verify_jj_version.sh)** — re-checks every documented jj command, flag and revset against the installed jj; run by hand before changing `compatibility` in SKILL.md, not in CI.
+- **[verify_jj_version.sh](../tests/verify_jj_version.sh)** — re-checks every documented jj command, flag and revset against the installed jj; run it before changing `compatibility` in SKILL.md. CI runs it too.
+- **[install_jj.sh](../tests/install_jj.sh)** — CI helper that installs a jj release and checks its sha256.
 
-[`.github/workflows/evals.yml`](../.github/workflows/evals.yml) installs the pinned
-jj version and runs both suites in CI, so the proof is continuous.
+[`.github/workflows/evals.yml`](../.github/workflows/evals.yml) runs both suites and
+the compatibility probe on two jj versions: the floor named in `compatibility`
+(pinned with its sha256) and the newest jj release, resolved at run time. It runs on
+every PR, on `main` and weekly, so a new jj release that drifts from the docs fails
+CI even when no PR is open.
 
 ### Specification ([`docs/PRD.md`](PRD.md))
 

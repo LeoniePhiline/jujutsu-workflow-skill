@@ -3,46 +3,54 @@
 
 name: Evals
 
-# Continuous PROOF: installs the pinned jj version and runs the deterministic
-# eval suites that (a) prove the skill's documented workflow works end-to-end and
-# (b) demonstrate jj's superiority over pure Git for agentic coding.
+# Continuous PROOF: runs the deterministic eval suites that (a) prove the
+# skill's documented workflow works end-to-end and (b) demonstrate jj's
+# superiority over pure Git for agentic coding, plus the compatibility probe
+# that re-checks every documented jj command, flag and revset.
+#
+# Two jj versions, so the skill's claims hold at both ends of its range:
+#   - the floor, the oldest version SKILL.md's `compatibility` field names;
+#   - the newest jj release, resolved at run time. The weekly schedule catches a
+#     new jj release that drifts from the docs even when no PR is open.
 #
 # Thin caller of the shared script-check reusable: jj is provisioned in
 # `pre-command` (it runs in the same job, so the $GITHUB_PATH entry carries into
-# the check), and the two eval suites run as the check. The checkout pin and
-# harden-runner are maintained centrally.
+# the check). The checkout pin and harden-runner are maintained centrally.
 
 on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
 
 permissions: {}
 
 jobs:
   evals:
+    name: evals (jj ${{ matrix.jj }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Floor. sha256 is the digest GitHub lists for the linux-musl asset on
+          # the jj-vcs/jj release page; change both values together, and the
+          # `compatibility` field in SKILL.md with them.
+          - jj: v0.42.0
+            sha256: 2d91e81d649e617a81608e7401ad1106029c15ece01ac928c4a351abef42be6a
+          # Newest release. tests/install_jj.sh verifies it against the digest
+          # GitHub records for the asset.
+          - jj: latest
+            sha256: ""
     uses: netresearch/.github/.github/workflows/script-check.yml@main
     permissions:
       contents: read
     with:
-      # jj release pin. Kept here (not as a workflow env) because a reusable
-      # caller's `with:` cannot read `env:`. JJ_SHA256 is the sha256 digest
-      # GitHub lists for the linux-musl asset on the jj-vcs/jj release page (jj
-      # publishes no separate checksum file); change both lines together.
-      pre-command: |
-        JJ_VERSION=v0.42.0
-        JJ_SHA256=2d91e81d649e617a81608e7401ad1106029c15ece01ac928c4a351abef42be6a
-        mkdir -p "$HOME/.local/bin"
-        asset="jj-${JJ_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-        url="https://github.com/jj-vcs/jj/releases/download/${JJ_VERSION}/${asset}"
-        tmpd="$(mktemp -d)"
-        curl -fsSL -o "$tmpd/$asset" "$url"
-        echo "${JJ_SHA256}  $tmpd/$asset" | sha256sum -c -
-        tar -xzf "$tmpd/$asset" -C "$tmpd"
-        install -m755 "$(find "$tmpd" -name jj -type f | head -1)" "$HOME/.local/bin/jj"
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      pre-command: bash tests/install_jj.sh ${{ matrix.jj }} ${{ matrix.sha256 }}
       check-cmd: |
         jj --version
         git --version
         bash tests/smoke_test.sh
         bash tests/superiority_evals.sh
+        bash tests/verify_jj_version.sh

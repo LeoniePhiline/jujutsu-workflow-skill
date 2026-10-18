@@ -5,8 +5,9 @@
 # claims against the jj on PATH. Run it when bumping the `compatibility` field in
 # SKILL.md, or when a new jj release lands.
 #
-# It is a compatibility PROBE, not a CI gate: it answers "do our documented
-# commands still exist and still behave as written on this jj?".
+# It is a compatibility PROBE: it answers "do our documented commands still
+# exist and still behave as written on this jj?". CI (evals.yml) runs it on the
+# floor version and on the newest jj release, so drift fails the build.
 # tests/smoke_test.sh remains the behavioral gate.
 #
 # Exit: 0 = every claim holds, 1 = at least one drifted, 2 = setup error.

@@ -27,7 +27,8 @@ remote, PR, CI, and audit interface.
 ├── evals/evals.json                 # skill evaluation cases (Eval Validation)
 ├── tests/smoke_test.sh              # end-to-end proof against a real jj repo + remote
 ├── tests/superiority_evals.sh       # paired jj-vs-git scenarios (run in CI by evals.yml)
-├── tests/verify_jj_version.sh       # compatibility probe: re-checks every documented command on a new jj
+├── tests/verify_jj_version.sh       # compatibility probe: re-checks every documented command (run in CI by evals.yml)
+├── tests/install_jj.sh              # CI helper: installs a pinned or the latest jj release, checksum-verified
 ├── docs/PRD.md                      # product requirements (living working document; R2 authoritative)
 ├── docs/ARCHITECTURE.md             # components and design decisions
 ├── plugin.json                      # plugin metadata (source of truth, synced to .claude-plugin/)
@@ -66,7 +67,9 @@ remote, PR, CI, and audit interface.
 - Follows the Netresearch skill-repo standard (split MIT + CC-BY-SA-4.0 licensing,
   reusable-workflow CI callers, no `composer.lock`).
 - All `jj` commands are verified against **jj 0.42.0** and re-verified against
-  **0.43.0** with no drift (`compatibility` in SKILL.md frontmatter).
+  **0.43.0** with no drift (`compatibility` in SKILL.md frontmatter). CI (`evals.yml`)
+  runs the eval suites and the compatibility probe on the floor (0.42.0) and on the
+  newest jj release, on every PR and weekly.
 - No `agents/openai.yaml` (Netresearch house convention; OpenAI description derives from `SKILL.md`).
 
 ## References
