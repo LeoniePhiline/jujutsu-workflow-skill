@@ -14,12 +14,13 @@
 # Installs into $JJ_INSTALL_DIR (default: $HOME/.local/bin) and, inside GitHub
 # Actions, appends that directory to $GITHUB_PATH for the following steps.
 #
-# Exit: 0 = installed, 1 = download or checksum failure, 2 = usage error.
+# Exit: 0 = installed, 2 = usage error, any other non-zero = download,
+# checksum or extraction failure.
 set -euo pipefail
 
 want="${1:-}"
 pin="${2:-}"
-if [[ -z "$want" || ("$want" != latest && -z "$pin") ]]; then
+if [[ -z "$want" || ("$want" != latest && -z "$pin") || ("$want" == latest && -n "$pin") ]]; then
   echo "usage: install_jj.sh <vX.Y.Z> <sha256> | install_jj.sh latest" >&2
   exit 2
 fi
