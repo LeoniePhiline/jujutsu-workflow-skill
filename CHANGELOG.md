@@ -13,6 +13,25 @@ was introduced in 0.3.1; the GitHub Releases for those tags remain the original 
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-18
+
+### Fixed
+
+- `verify_handoff.sh --bookmark` and `--protected` as the last argument no longer hang: a missing value exits 2 with "needs a value"
+- `verify_handoff.sh --protected --strict …` no longer takes `--strict` as the protected list: a recognised option in the value position exits 2 like a missing value
+- `--help` of `detect_jj_state.sh` and `verify_handoff.sh` prints the whole header comment; `detect_jj_state.sh` no longer drops the `none` mode, and `verify_handoff.sh` no longer prints a line of code
+- `verify_handoff.sh` header: the protected-branch and `--require-bookmark` checks look at the push targets, not only the bookmark at `@`
+
+### Added
+
+- SPDX licence and copyright notices in the shipped skill files
+- README: a "Governance and policies" section linking the organisation's policies and naming the checks that run on pull requests
+- `docs/SECURITY-ASSURANCE.md`: a security assurance case covering trust boundaries, threats, countermeasures and limits
+
+### Changed
+
+- CI runs the eval suites and `tests/verify_jj_version.sh` on jj 0.42.0 and on the newest jj release, on every pull request and weekly
+
 ## [1.0.0] - 2026-09-23
 
 ### Changed
@@ -137,7 +156,8 @@ what makes the state destructive rather than merely confusing.
 - Netresearch governance ruleset: security and PR-quality workflows,
   `ARCHITECTURE.md`, split MIT + CC-BY-SA-4.0 licensing.
 
-[Unreleased]: https://github.com/netresearch/jujutsu-workflow-skill/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/netresearch/jujutsu-workflow-skill/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/netresearch/jujutsu-workflow-skill/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/netresearch/jujutsu-workflow-skill/compare/v0.3.4...v1.0.0
 [0.3.4]: https://github.com/netresearch/jujutsu-workflow-skill/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/netresearch/jujutsu-workflow-skill/compare/v0.3.2...v0.3.3
