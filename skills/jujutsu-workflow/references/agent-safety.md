@@ -33,8 +33,8 @@ These open `$EDITOR` or a TUI and hang an agent. Each has a non-interactive form
 
 | Hangs (do NOT run) | Non-interactive form |
 | --- | --- |
-| `jj describe` (no `-m`) | `jj describe -m "msg"` |
-| `jj commit` (no `-m`) | `jj commit -m "msg"` |
+| `jj describe` (no `-m` or `--stdin`) | `jj describe -m "msg"` or `jj describe --stdin < msg.md` |
+| `jj commit` (no `-m`) | `jj commit -m "msg"`; complex messages: `jj describe --stdin < msg.md && jj commit` |
 | `jj squash -i` / `jj squash` opening editor | `jj squash --from R --into R [-m "msg"]` |
 | `jj split` (interactive diff editor) | `jj split <paths> -m "msg"` |
 | `jj diffedit` | edit files directly, then `jj diff` |
@@ -45,8 +45,10 @@ Good vs bad:
 ```bash
 # Bad — opens $EDITOR, hangs
 jj describe
-# Good
+# Good (trivial commit messages)
 jj describe -m "fix: handle empty input"
+# Good (non-trivial commit messages: multi-line, trailers, backticks)
+jj describe --stdin < msg.md
 ```
 
 If a non-interactive form does not exist for what you need, stop and report it
@@ -68,9 +70,10 @@ Between jj commands, edits live only on disk. Practical consequences:
 
 ### Immutable commits
 
-`Error: Commit <id> is immutable` means the target is in `immutable_heads()`
-(by default trunk, tags, and untracked remote bookmarks you didn't author;
-`jj config get 'revset-aliases."immutable_heads()"'` shows the repo's set). Build
+`Error: Commit <id> is immutable` means the target is in `immutable()`, which includes
+`immutable_heads()` and their ancestors (plus the root commit). By default the
+heads include trunk, tags, and untracked remote bookmarks you didn't author;
+`jj --no-pager config get 'revset-aliases."immutable_heads()"'` shows the heads. Build
 new changes on top instead. `--ignore-immutable` is only for commits you own that no
 one else has built on; never use it to rewrite trunk.
 
